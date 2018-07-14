@@ -1,5 +1,6 @@
 = +plast+ — Modular Threat Hunting Tool & Framework
 Nelson (sk4la) <https://github.com/sk4la>
+:imagesdir: ./resources/rendered
 :hide-uri-scheme:
 :uri-repo: https://github.com/sk4la/plast
 :uri-blob: {uri-repo}/blob/master
@@ -9,7 +10,7 @@ Nelson (sk4la) <https://github.com/sk4la>
 
 image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:https://img.shields.io/badge/License-GPLv3-blue.svg[link={uri-license}]
 
-image::logo.png[alt=plast, align="center", width=50%, link={uri-repo}]
+image::logo.png[alt=plast, align="center", width=30%, link={uri-repo}]
 
 Hmmm, {uri-readme}[what's this project about?]
 

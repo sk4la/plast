@@ -1,6 +1,6 @@
 = +plast+ — Modular Threat Hunting Tool & Framework
 Nelson (sk4la) <https://github.com/sk4la>
-:imagesdir: ./resources
+:imagesdir: ./resources/rendered
 :hide-uri-scheme:
 :uri-repo: https://github.com/sk4la/plast
 :uri-blob: {uri-repo}/blob/master
@@ -26,6 +26,8 @@ It provides a comprehensive framework that easily allows to add functionalities 
 `plast` is entirely written in `python3` which makes it compatible with all GNU/Linux, BSD and macOS distributions. Nevertheless, some minimal dependencies are required.
 
 Note that running `plast` on Microsoft Windows operating systems is totally untested at the moment.
+
+image::usage.png[alt=Usage, align="center", link={uri-repo}]
 
 image::flow.svg[alt=Flow, align="center", link={uri-repo}]
 

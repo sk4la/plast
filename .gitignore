@@ -9,6 +9,4 @@ __pycache__/
 rulesets/*
 !rulesets/.empty
 
-resources/*.xml
-resources/*.xcf
-resources/*.cast
+resources/templates/*
