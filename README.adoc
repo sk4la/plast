@@ -1,5 +1,5 @@
 = +plast+ — Modular Threat Hunting Tool & Framework
-Nelson Cornet (sk4la) <https://github.com/sk4la>
+Nelson (sk4la) <https://github.com/sk4la>
 :imagesdir: ./resources
 :hide-uri-scheme:
 :uri-repo: https://github.com/sk4la/plast
@@ -13,7 +13,7 @@ Nelson Cornet (sk4la) <https://github.com/sk4la>
 
 image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:https://img.shields.io/badge/License-GPLv3-blue.svg[link={uri-license}]
 
-image::logo.png[alt=plast, align="center", width=45%, link={uri-repo}]
+image::logo.png[alt=plast, align="center", width=30%, link={uri-repo}]
 
 `plast` is a command-line and heavily modular *threat-hunting tool*. It comes with several modules that allow processing of multiple data types, trigger automatic actions upon detection and produce customized output.
 
@@ -183,6 +183,6 @@ Refer to the `git` repository to retrieve the latest version.
 
 == Copyright & Licensing
 
-Copyright (c) 2018 Nelson Cornet (sk4la). Free use of this software is granted under the terms of the GNU GPLv3 license.
+Copyright (c) 2018 Nelson (sk4la). Free use of this software is granted under the terms of the GNU GPLv3 license.
 
 See the {uri-license}[LICENSE] file for details.

@@ -1,5 +1,5 @@
 = +plast+ — Modular Threat Hunting Tool & Framework
-Nelson Cornet (sk4la) <https://github.com/sk4la>
+Nelson (sk4la) <https://github.com/sk4la>
 :hide-uri-scheme:
 :uri-repo: https://github.com/sk4la/plast
 :uri-blob: {uri-repo}/blob/master
