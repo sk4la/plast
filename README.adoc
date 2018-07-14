@@ -1,0 +1,188 @@
+= +plast+ — Modular Threat Hunting Tool & Framework
+Nelson Cornet (sk4la) <https://github.com/sk4la>
+:imagesdir: ./resources
+:hide-uri-scheme:
+:uri-repo: https://github.com/sk4la/plast
+:uri-blob: {uri-repo}/blob/master
+:uri-license: {uri-blob}/LICENSE
+:uri-contrib: {uri-blob}/CONTRIBUTING.adoc
+:uri-python: https://www.python.org
+:uri-yara: https://github.com/VirusTotal/yara
+:uri-framework: {uri-blob}/plast/framework
+:asciinema-demo-uri: https://asciinema.org/a/PBhdv6xw91h4qDHq77hD8ZIeS
+
+image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:https://img.shields.io/badge/License-GPLv3-blue.svg[link={uri-license}]
+
+image::logo.png[alt=plast, align="center", width=45%, link={uri-repo}]
+
+`plast` is a command-line and heavily modular *threat-hunting tool*. It comes with several modules that allow processing of multiple data types, trigger automatic actions upon detection and produce customized output.
+
+`plast` 's engine uses {uri-yara}[YARA] under the hood, leveraged through https://docs.python.org/3.7/library/multiprocessing.html[multiprocessing] tasks to perform rule-based detection on multiple types of input.
+
+The main goal of the `plast` project is to provide an *efficient and effortless* way to detect https://en.wikipedia.org/wiki/indicator_of_compromise[indicators of compromise] during incident-response operations.
+
+It provides a comprehensive framework that easily allows to add functionalities to the tool in just a few lines of code, without worrying about efficiency and scalability. `plast` embeds all referenced modules in one single tool, allowing it to be used on the field as a *standalone utility*.
+
+`plast` is entirely written in `python3` which makes it compatible with all GNU/Linux, BSD and macOS distributions. Nevertheless, some minimal dependencies are required.
+
+Note that running `plast` on Microsoft Windows operating systems is totally untested at the moment.
+
+image::flow.svg[alt=Flow, align="center", link={uri-repo}]
+
+== Getting Started
+
+Follow these steps to get a copy of the project up and running on a live system.
+
+=== Prerequisites
+
+Follow the steps described below to install the project on your system.
+
+==== Debian-based Package Manager
+
+Install the latest `python3` environment:
+
+[source,sh]
+----
+apt install -y python3 python3-pip
+----
+
+If you plan on building a developpement environment, you may also need to install the following package:
+
+[source,sh]
+----
+apt install -y python3-venv
+----
+
+Note that modules have their own dependencies and thus may not be listed here.
+
+Also, if you plan on compiling hash-based `yara` rules, you will need to install the https://www.openssl.org/[OpenSSL] library:
+
+[source,sh]
+----
+apt install -y libssl-dev
+----
+
+=== Installation
+
+Installing `plast` as a system-wide utility is as simple as:
+
+[source,sh]
+----
+./setup.py install
+----
+
+It might be necessary to `chmod u+x setup.py` to be able to execute the `setup.py` file.
+
+To install a basic developpement environment, issue the following commands:
+
+[source,sh,subs="attributes"]
+----
+git clone {uri-repo}.git plast
+cd plast
+python3 -m venv .env
+source .env/bin/activate
+pip install --upgrade pip && pip install -r REQUIREMENTS
+----
+
+== Usage
+
+image::{asciinema-demo-uri}.png[alt=plast-demo, align="center", link={asciinema-demo-uri}?speed=2&theme=asciinema&preload=1&autoplay=1]
+
+=== Manual
+
+Use the following command to display the main help menu:
+
+[source,sh]
+----
+plast --help
+----
+
+Each `Pre` module also has a custom help menu that can be called like this (e.g. with the `raw` module):
+
+[source,sh]
+----
+plast raw --help
+----
+
+=== Basic examples
+
+The following command will recursively look for every file in the `case` directory, process them using the `raw` module (which basically does nothing) and pass into every registered `Callback` and `Post` module:
+
+[source,sh]
+----
+plast -ri case -o out raw
+----
+
+One can easily choose which modules will be invoked during processing by setting the `--callbacks` and `--post` arguments accordingly:
+
+[source,sh]
+----
+plast -ri case --callbacks pineapple kiwi --post banana apple orange -o out raw
+----
+
+Modules are called by their basename without extension (e.g. `banana` for `banana.py`). Disabled or non-existing modules will be ignored.
+
+Custom `plast` modules dwell in the `framework.modules` package.
+
+Not that in cases like below, one may need to add a `-` before any positional argument to break the previous list-based argument's parsing:
+
+[source,sh]
+----
+plast -o out -ri case - raw
+----
+
+=== Data type inference
+
+In case no positional argument is supplied, `plast` implements several techniques (magic numbers, MIME-type guessing) to infer the data type of the provided evidence(s).
+
+This is useful when one does not necessarily know which preprocessing module to invoke when processing exotic evidence(s).
+
+[source,sh]
+----
+plast -i case/sample.pdf -o out
+----
+
+See more examples in {uri-contrib}[CONTRIBUTING.adoc].
+
+=== Adding YARA rulesets
+
+Hmmm, https://virustotal.github.io/yara/[what's a YARA rule again?]
+
+YARA rulesets dwell in the `rulesets` directory. To add custom YARA rulesets, simply drop any `.yar` or `.yara` file(s) to this directory.
+
+Custom rulesets extensions can be added in the `YARA_EXTENSION_FILTERS` list in the `configuration.json` file.
+
+See https://yara.readthedocs.io/en/v3.7.1/writingrules.html[this page] to learn how to write custom YARA rules.
+
+== Contributing
+
+Everyone is welcome to contribute to the project. I'll be happy to include community modules to the public repository.
+
+Please refer to the instructions provided in {uri-contrib}[CONTRIBUTING.adoc] before submitting pull requests though.
+
+== Similar Projects
+
+Similar projects include:
+
+* https://www.fireeye.com/services/freeware/ioc-finder.html[IOC Finder]
+* https://github.com/Neo23x0/Loki[Loki]
+* https://github.com/fhightower/ioc-finder[ioc-finder]
+* https://github.com/reed1713/ELAT[ELAT]
+* https://github.com/EmersonElectricCo/fsf[FSF]
+* https://github.com/KasperskyLab/klara[KLara]
+* https://github.com/lmco/laikaboss[Laika BOSS]
+* https://github.com/usualsuspect/malscan[malscan]
+* https://github.com/DCSO/spyre[Spyre]
+* https://github.com/PUNCH-Cyber/stoq[stoQ]
+* https://github.com/kevthehermit/YaraPcap[yaraPCAP]
+* https://github.com/BayshoreNetworks/yextend[yextend]
+
+== Versioning
+
+Refer to the `git` repository to retrieve the latest version.
+
+== Copyright & Licensing
+
+Copyright (c) 2018 Nelson Cornet (sk4la). Free use of this software is granted under the terms of the GNU GPLv3 license.
+
+See the {uri-license}[LICENSE] file for details.

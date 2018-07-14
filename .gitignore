@@ -1,0 +1,14 @@
+.DS_Store
+*.py[cdo]
+TODO
+
+__pycache__/
+.vscode/
+.env/
+
+rulesets/*
+!rulesets/.empty
+
+resources/*.xml
+resources/*.xcf
+resources/*.rec

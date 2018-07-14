@@ -1,0 +1,310 @@
+= +plast+ — Modular Threat Hunting Tool & Framework
+Nelson Cornet (sk4la) <https://github.com/sk4la>
+:hide-uri-scheme:
+:uri-repo: https://github.com/sk4la/plast
+:uri-blob: {uri-repo}/blob/master
+:uri-license: {uri-blob}/LICENSE
+:uri-readme: {uri-blob}/README.adoc
+:uri-framework: {uri-blob}/plast/framework
+
+image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:https://img.shields.io/badge/License-GPLv3-blue.svg[link={uri-license}]
+
+image::logo.png[alt=plast, align="center", width=50%, link={uri-repo}]
+
+Hmmm, {uri-readme}[what's this project about?]
+
+Please refer to the instructions in {uri-readme}[README.adoc] to install the latest version of the project.
+
+== Contributing
+
+The `plast` project can only be useful if there are modules helping to process custom data types.
+
+Following this direction, the framework allows to easily integrate new modules by creating custom classes and simply dropping them in one of the {uri-framework}/modules[`framework.modules`] package directories. That's it.
+
+=== Writing custom modules
+
+The core process is handled by three main classes defined in the {uri-framework}/contexts/models.py[`framework.contexts.models`] module. This module defines the three `Pre`, `Post` and `Callback` reference classes.
+
+Modules *must* inherit from one of these reference classes:
+
+* `Pre` (or _preprocessing_) modules are meant to handle the data *before* the engine starts scanning evidence(s). As `Pre` modules correspond to command-line positional arguments, only one `Pre` module can be used _per_ `plast` instance (e.g. `plast -i sample.pdf -o out raw`).
+* `Post` (or _postprocessing_) modules are designed to consume the match(es) yielded by the engine. Multiple `Post` modules can be called using the `--post` argument (e.g. `plast -i sample.pdf --post banana apple orange -o out raw`). These modules are invoked one after the other and can be chained at will. The invocation sequence respects the order given through the `--post` argument.
+* `Callback` modules are a second way to handle the match(es) issued by the engine. Sometimes, during large hunting campaigns, postprocessing the matches as a whole can be too resource-consuming for the hosting hardware. In these kind of situations, `Callback` modules allow to manipulate each single match _on the fly_.
+
+==== Preprocessing modules
+
+Preprocessing is handled by the `Pre` reference class from the {uri-framework}/contexts/models.py[`framework.contexts.models`] module. To create a `Pre` module, one needs to create a module containing a subclass of `framework.contexts.models.Pre` named `Pre`.
+
+Following is a basic example of a `Pre` module that simply registers the evidence `infected.pdf` for tracking:
+
+[source,python]
+----
+from framework.contexts import models as _models
+
+class Pre(_models.Pre):
+    __author__ = "sk4la"
+    __description__ = "Example preprocessing module."
+    __license__ = "GNU GPLv3 <https://github.com/sk4la/plast/blob/master/LICENSE>"
+    __maintainer__ = ["sk4la"]
+    __system__ = ["Darwin", "Linux", "Windows"]
+    __version__ = "0.1"
+    __associations__ = {}
+
+    def run(self):
+        self.case.track_file("/tmp/infected.pdf")
+----
+
+`Pre` modules must feature a `run` method that will be used as an entry point.
+
+Each `Pre` module corresponds to a positional argument in `plast`. One can add module-wide command-line argument(s) by overriding the `__init__` method like this:
+
+[source,python]
+----
+from framework.contexts import models as _models
+from framework.contexts.logger import Logger as _log
+
+class Pre(_models.Pre):
+    __author__ = "sk4la"
+    __description__ = "Example preprocessing module."
+    __license__ = "GNU GPLv3 <https://github.com/sk4la/plast/blob/master/LICENSE>"
+    __maintainer__ = ["sk4la"]
+    __system__ = ["Darwin", "Linux", "Windows"]
+    __version__ = "0.1"
+    __associations__ = {}
+
+    def __init__(self, parser):
+        parser.add_argument(
+            "-j", "--jobs",
+            type=int, 
+            default=4, 
+            help="number of concurrent job(s)")
+        
+        parser.add_argument(
+            "--debug", 
+            default="False", 
+            help="run in debug mode")
+
+    def run(self):
+        self.case.track_file("/tmp/infected.pdf")
+
+        if self.case.arguments.debug:
+            _log.debug("Traking file {}.".format("/tmp/infected.pdf"))
+----
+
+The syntax to register command-line arguments is based on the https://docs.python.org/3/library/argparse.html[`argparse`] standard library.
+
+Command-line argument(s) are then accessed through the current `Case` instance (see the chapter below to get a grasp on the {uri-framework}/contexts/case.py[`Case`] class).
+
+Input is already flattened as a list of absolute file path(s) and stored in the `feed` attribute of any `Pre` module. The input evidence(s) path(s) are now available through the `self.feed` property (see below).
+
+[source,python]
+----
+from framework.contexts import models as _models
+from framework.contexts.logger import Logger as _log
+
+class Pre(_models.Pre):
+    __author__ = "sk4la"
+    __description__ = "Example preprocessing module."
+    __license__ = "GNU GPLv3 <https://github.com/sk4la/plast/blob/master/LICENSE>"
+    __maintainer__ = ["sk4la"]
+    __system__ = ["Darwin", "Linux", "Windows"]
+    __version__ = "0.1"
+    __associations__ = {}
+
+    def run(self):
+        for evidence in self.feed:
+            self.case.track_file(evidence)
+            _log.debug("Tracking file {}.".format(evidence))
+----
+
+===== Data type inference
+
+To use data type inference (see {uri-readme}[`README.adoc`] to get a grasp on this functionality), modules must present a property named `__associations__` that will list the compatibilities. For the moment, inference is made using https://en.wikipedia.org/wiki/List_of_file_signatures[magic numbers] and https://en.wikipedia.org/wiki/Media_type[MIME-types].
+
+This property *must* be a dictionary featuring the `extensions` and `mime` lists, like in the example below:
+
+[source,python]
+----
+from framework.contexts import models as _models
+
+class Pre(_models.Pre):
+    __author__ = "sk4la"
+    __description__ = "Example preprocessing module providing data type inference capabilities."
+    __license__ = "GNU GPLv3 <https://github.com/sk4la/plast/blob/master/LICENSE>"
+    __maintainer__ = ["sk4la"]
+    __system__ = ["Darwin", "Linux", "Windows"]
+    __version__ = "0.1"
+    __associations__ = {
+        "extensions": [
+            "zip"
+        ],
+        "mime": [
+            "multipart/x-zip",
+            "application/zip",
+            "application/zip-compressed",
+            "application/x-zip-compressed"
+        ]
+    }
+
+    def run(self):
+        self.case.track_files(feed)
+----
+
+This example `Pre` module can now be invocated using inference (e.g. `plast -i sample.zip -o out` or `plast -i sample.unk -o out` if `sample.unk` is a `zip` archive).
+
+==== Postprocessing modules
+
+Same as `Pre` modules, `Post` modules must present themselves as subclasses of the reference {uri-framework}/contexts/models.py[`framework.contexts.models.Post`] class.
+
+Following is a basic example of a `Post` module that simply prints to the console screen the absolute paths to the matching evidences:
+
+[source,python]
+----
+from framework.api.internal.renderer import Renderer as _renderer
+
+from framework.contexts import models as _models
+
+import sys
+
+from pygments import highlight
+from pygments.formatters import TerminalFormatter
+from pygments.lexers import JsonLexer
+
+class Post(_models.Post):
+    __author__ = "sk4la"
+    __description__ = "Simple postprocessing module that prints out the absolute path of every matching evidence."
+    __license__ = "GNU GPLv3 <https://github.com/sk4la/plast/blob/master/LICENSE>"
+    __maintainer__ = ["sk4la"]
+    __system__ = ["Darwin", "Linux", "Windows"]
+    __version__ = "0.1"
+
+    def run(self, case):
+        feedback = {
+            "total": 0,
+            "matches": []
+        }
+
+        for match in _rendering.iterate_matches(case.resources["matches"]):
+            feedback["total"] += 1
+            feedback["matches"].append(match["target"]["identifier"])
+
+        sys.stdout.write(highlight(_renderer.to_json(feedback, indent=4), JsonLexer(), TerminalFormatter()))
+----
+
+==== Callback modules
+
+While `Post` modules are invoked at the very end of the process, `Callback` modules are spawned whenever an evidence matches.
+
+Using `Callback` modules:
+
+* Optimizes the processing duration by triggering custom actions _on the fly_, without going through all the matches at the very end, which can be time-consuming.
+* Allows to perform more intricate action sequences based on the nature of the matches.
+
+Following is an example of a simple `Callback` module that displays and beautifies matches _on the fly_:
+
+[source,python]
+----
+from framework.api.internal.renderer import Renderer as _renderer
+
+from framework.contexts import models as _models
+from framework.contexts.logger import Logger as _log
+
+import sys
+
+from pygments import highlight
+from pygments.formatters import TerminalFormatter
+from pygments.lexers import JsonLexer
+
+class Callback(_models.Callback):
+    __author__ = "sk4la"
+    __description__ = "Simple callback tailing and beautifying match(es)."
+    __license__ = "GNU GPLv3 <https://github.com/sk4la/plast/blob/master/LICENSE>"
+    __maintainer__ = ["sk4la"]
+    __system__ = ["Darwin", "Linux", "Windows"]
+    __version__ = "0.1"
+
+    def run(self, data):
+        sys.stdout.write(highlight(_renderer.to_json(data, indent=4), JsonLexer(), TerminalFormatter()))
+----
+
+=== Modules metadata
+
+Module classes can embed several metatags in their body to provide some information about the module and eventual limitations.
+
+Supported metatags are:
+
+* `__author__` [str]: Initial author of the module.
+* `__description__` [str]: Quick description of the module and what it does.
+* `__license__` [str]: Module-wide licensing. Must provide the actual license text or a link pointing to it.
+* `__maintainer__` [list]: Current maintainer(s) of the module. This field can include formatted e-mails such as `auth0r <auth0r@example.com>`.
+* `__system__` [list]: System(s) supported by the current module. This feature uses the standard `platform` module, therefore systems listed in this tag _must_ be issued by `platform.system()` (See https://docs.python.org/3.7/library/platform.html[this page] to get a list of available systems).
+* `__version__` [str]: Module-wide versioning.
+* `__associations__` [dict]: This tag is used for data-type inference, and is `Pre` modules specific. It must contain a list `extensions` containing supported file extensions (e.g. `zip`, `tar`) and a list `mime` featuring every MIME-type that can be handled by the module (e.g. `application/x-zip-compressed`).
+
+Except `__system__`, none of these are mandatory, but one is greatly encouraged to put some. 
+
+If `__associations__` is not mentioned or left blank, the module will not be able to be invoked through data-type inference.
+
+=== Interacting with the application
+
+==== Case
+
+The `Case` class (from the {uri-framework}/contexts/case.py[`framework.contexts.case`] module) is the main object used to pass data _from_, _through_ and _to_ the modules.
+
+It contains several tracking methods that can be used by `Pre` modules to register evidence(s) for processing:
+
+[source,python]
+----
+from framework.contexts.case import Case
+
+case = Case()
+
+case.track_file("/home/user/Desktop/sample.pdf")
+case.track_files([
+    "/home/user/Desktop/sample.pdf", 
+    "/home/user/Desktop/sample.xlsx"
+])
+----
+
+See the actual {uri-framework}/contexts/case.py[`Case`] class reference for more information.
+
+Some modules can require storage space to store temporary data on the disk (e.g. decompression cache). The `Case` object provides a simple way to require a temporary directory:
+
+[source,python]
+----
+from framework.contexts.case import Case
+
+case = Case()
+
+tmp_directory_path = case.require_temporary_directory()
+----
+
+Every directory created by the `require_temporary_directory` method will be deleted when the program exits, unless the `KEEP_TEMPORARY_ARTIFACTS` variable is set to `true` in the {uri-blob}/plast/configuration.json[`configuration.json`] file.
+
+==== Logger
+
+The `Logger` class is the main way to interact with the application. Any module can cast log messages to the application logger (handled by the standard https://docs.python.org/3/library/logging.html[`logging`] module) through the {uri-framework}/contexts/logger.py[`framework.contexts.logger.Logger`] object.
+
+[source,python]
+----
+from framework.contexts.logger import Logger as _log
+
+_log.debug("Debug.")
+_log.info("Information.")
+_log.warning("Warning.")
+_log.error("Error.")
+_log.critical("Critical error.")
+
+_log.exception("Traceback of the previous exception that occured in the scope of the program.")
+
+_log.fault("Halt the program with an error message.")
+_log.fault("Halt the program with an error message and display any eventual exception traceback.", post_mortem=True)
+----
+
+Messages that are cast by the `fault` method will *always* be shown to the user, even if console output is manually disabled.
+
+==== API
+
+Every module found in the {uri-framework}/api/external[`framework.api.external`] provides several helper functions and classes that can be used in module(s).
+
+Check the API reference or the source code to get a grasp on each available functionnality that is provided by the API.
