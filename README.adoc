@@ -7,9 +7,8 @@ Nelson (sk4la) <https://github.com/sk4la>
 :uri-license: {uri-blob}/LICENSE
 :uri-contrib: {uri-blob}/CONTRIBUTING.adoc
 :uri-python: https://www.python.org
-:uri-yara: https://github.com/VirusTotal/yara
+:uri-yara: https://virustotal.github.io/yara/
 :uri-framework: {uri-blob}/plast/framework
-:asciinema-demo-uri: https://asciinema.org/a/PBhdv6xw91h4qDHq77hD8ZIeS
 
 image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:https://img.shields.io/badge/License-GPLv3-blue.svg[link={uri-license}]
 
@@ -88,7 +87,7 @@ pip install --upgrade pip && pip install -r REQUIREMENTS
 
 == Usage
 
-image::{asciinema-demo-uri}.png[alt=plast-demo, align="center", link={asciinema-demo-uri}?speed=2&theme=asciinema&preload=1&autoplay=1]
+image::usage.png[alt=Usage, align="center", link={uri-repo}]
 
 === Manual
 
