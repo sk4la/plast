@@ -29,7 +29,7 @@ Note that running `plast` on Microsoft Windows operating systems is totally unte
 
 image::usage.png[alt=Usage, align="center", link={uri-repo}]
 
-image::flow.svg[alt=Flow, align="center", link={uri-repo}]
+image::flow.png[alt=Flow, align="center", link={uri-repo}]
 
 == Getting Started
 
