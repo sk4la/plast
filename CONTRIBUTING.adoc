@@ -10,7 +10,7 @@ Nelson (sk4la) <https://github.com/sk4la>
 
 image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:https://img.shields.io/badge/License-GPLv3-blue.svg[link={uri-license}]
 
-image::logo.png[alt=plast, align="center", height=50%, link={uri-repo}]
+image::logo.png[alt=plast, align="center", width=60%, link={uri-repo}]
 
 Hmmm, {uri-readme}[what's this project about?]
 
