@@ -12,7 +12,7 @@ Nelson (sk4la) <https://github.com/sk4la>
 
 image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:https://img.shields.io/badge/License-GPLv3-blue.svg[link={uri-license}]
 
-image::logo.png[alt=plast, align="center", height=80%, link={uri-repo}]
+image::logo.png[alt=plast, align="center", height=50%, link={uri-repo}]
 
 `plast` (_Programme Libre d'Analyse STatique_ in french) is a command-line and heavily modular *threat-hunting tool*. It comes with several modules that allow processing of multiple data types, trigger automatic actions upon detection and produce customized output.
 
