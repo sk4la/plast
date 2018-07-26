@@ -32,23 +32,19 @@ class Pre(_models.Pre):
 
     def __init__(self, parser):
         parser.add_argument(
-            "--level", type=int, choices=range(1, 101), default=10, metavar="NUMBER",
+            "--level", type=int, choices=range(1, 101), default=10, metavar="NUMBER", dest="_level", 
             help="maximum number of level(s) to unpack [10]")
 
         parser.add_argument(
-            "--exclude", nargs="+", metavar="FILTER", 
-            help="ignore file(s) matching wildcard filter(s)")
+            "--exclude", nargs="+", default=_conf.DEFAULTS["EXCLUSION_FILTERS"], metavar="FILTER", dest="_exclude", 
+            help="ignore file(s) matching wildcard filter(s) {}".format(_conf.DEFAULTS["EXCLUSION_FILTERS"]))
 
         parser.add_argument(
-            "--include", nargs="+", default=_conf.DEFAULTS["INCLUDE_FILTER"], metavar="FILTER", 
-            help="only add file(s) matching wildcard filter(s) {}".format(_conf.DEFAULTS["INCLUDE_FILTER"]))
+            "--include", nargs="+", default=_conf.DEFAULTS["INCLUSION_FILTERS"], metavar="FILTER", dest="_include", 
+            help="only add file(s) matching wildcard filter(s) {}".format(_conf.DEFAULTS["INCLUSION_FILTERS"]))
 
         parser.add_argument(
-            "--processes", type=int, choices=range(1, 1001), default=(multiprocessing.cpu_count() or _conf.DEFAULTS["PROCESSES_FALLBACK"]), metavar="NUMBER",
-            help="override the number of concurrent processe(s) [{}]".format(multiprocessing.cpu_count() or (_conf.DEFAULTS["PROCESSES_FALLBACK"] if _conf.DEFAULTS["PROCESSES_FALLBACK"] in range(1, 1001) else 4)))
-
-        parser.add_argument(
-            "-r", "--recursive", action="store_true", 
+            "-r", "--recursive", action="store_true", dest="_recursive", 
             help="unpack archive(s) and walk through directory(ies) recursively")
 
     # to be multiprocessed

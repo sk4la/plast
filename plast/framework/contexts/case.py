@@ -106,7 +106,7 @@ class Case:
         :rtype: str
         """
 
-        return "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(rounds))
+        return "".join(random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(rounds))
 
     def _create_arborescence(self):
         """

@@ -33,48 +33,6 @@ __all__ = [
     "main"
 ]
 
-def _expand_files(feed, recursive=False, include=_conf.DEFAULTS["INCLUDE_FILTER"], exclude=[]):
-    """
-    .. py:function:: _expand_files(feed, recursive=False, include=_conf.DEFAULTS["INCLUDE_FILTER"], exclude=[])
-
-    Iterates through file(s) and directory(ies) to retrieve the complete list of file(s).
-
-    :param feed: list of files and directories
-    :type feed: list
-
-    :param recursive: search files recursively
-    :type recursive: bool
-
-    :param include: list of wildcard patterns to include
-    :type include: list
-
-    :param exclude: list of wildcard patterns to exclude
-    :type exclude: list
-
-    :return: flattened list of existing files
-    :rtype: list
-    """
-
-    feedback = []
-
-    for item in [os.path.abspath(_) for _ in feed]:
-        if os.path.isfile(item):
-            if _fs.matches_patterns(os.path.basename(item), patterns=include):
-                if not exclude or (exclude and not _fs.matches_patterns(os.path.basename(item), patterns=exclude)):
-                    feedback.append(item)
-
-        elif os.path.isdir(item):
-            for file in [os.path.abspath(_) for _ in _fs.enumerate_matching_files(item, include, recursive=recursive)]:
-                if os.path.isfile(file):
-                    if _fs.matches_patterns(os.path.basename(file), patterns=include):
-                        if not exclude or (exclude and not _fs.matches_patterns(os.path.basename(file), patterns=exclude)):
-                            feedback.append(file)
-
-        else:
-            _log.error("Object not found <{}>.".format(item))
-
-    return feedback
-
 def _find_association(modules, meta):
     """
     .. py:function:: _find_association(modules, meta)
@@ -121,7 +79,8 @@ def _dispatch_preprocessing(modules, case, feed):
         meta = _fs.guess_file_type(file)
 
         if not meta:
-            _log.error("Could not determine data type of evidence <{}>.".format(file))
+            tasks.setdefault(("raw", modules["raw"]), []).append(file)
+            _log.warning("Could not determine data type. Added evidence <{}> to the force-feeding list.".format(file))
             continue
 
         try:
@@ -140,7 +99,7 @@ def _dispatch_preprocessing(modules, case, feed):
                 Module.case = case
                 Module.feed = partial_feed
 
-                with _magic.Hole(Exception, action=lambda:_log.fault("Fatal exception raised within preprocessing module <{}>.".format(Module.__class__.__name__), post_mortem=True)), _magic.Invocator(Module):
+                with _magic.Hole(Exception, action=lambda:_log.fault("Fatal exception raised within preprocessing module <{}>.".format(name), post_mortem=True)), _magic.Invocator(Module):
                     Module.run()
 
                 del Module
@@ -173,7 +132,7 @@ def _argparser(parser):
         help="select the callback(s) that will handle the resulting data [*]")
 
     parser.add_argument(
-        "--exclude", nargs="+", metavar="FILTER", 
+        "--exclude", nargs="+", default=_conf.DEFAULTS["EXCLUSION_FILTERS"], metavar="FILTER", 
         help="override include and ignore file(s) matching wildcard filter(s)")
 
     parser.add_argument(
@@ -194,8 +153,8 @@ def _argparser(parser):
         help="ignore YARA compilation warning(s)")
 
     parser.add_argument(
-        "--include", nargs="+", default=_conf.DEFAULTS["INCLUDE_FILTER"], metavar="FILTER", 
-        help="only add file(s) matching wildcard filter(s) {}".format(_conf.DEFAULTS["INCLUDE_FILTER"]))
+        "--include", nargs="+", default=_conf.DEFAULTS["INCLUSION_FILTERS"], metavar="FILTER", 
+        help="only add file(s) matching wildcard filter(s) {}".format(_conf.DEFAULTS["INCLUSION_FILTERS"]))
 
     parser.add_argument(
         "--logging", choices=["debug", "info", "warning", "error", "critical", "suppress"], default=_conf.DEFAULTS["LOGGING_LEVEL"].lower(),
@@ -271,17 +230,20 @@ def _initialize(container):
     if _conf.CASE_WIDE_LOGGING:
         _log._create_file_logger("case", os.path.join(case.resources["case"], "{}.log".format(_meta.__package__)), level=_conf.CASE_WIDE_LOGGING_LEVEL, encoding=_conf.OUTPUT_CHARACTER_ENCODING)
 
-    feed = _expand_files(args.input, 
+    feed = _fs.expand_files(args.input, 
         recursive=args.recursive, 
         include=args.include, 
         exclude=args.exclude)
+
+    if not feed:
+        _log.fault("No evidence(s) to process. Quitting.")
 
     if args._subparser:
         Module = container[0][args._subparser]
         Module.case = case
         Module.feed = feed
 
-        with _magic.Hole(Exception, action=lambda:_log.fault("Fatal exception raised within preprocessing module <{}>.".format(Module.__class__.__name__), post_mortem=True)), _magic.Invocator(Module):
+        with _magic.Hole(Exception, action=lambda:_log.fault("Fatal exception raised within preprocessing module <{}>.".format(args._subparser), post_mortem=True)), _magic.Invocator(Module):
             Module.run()
 
         del Module

@@ -6,10 +6,13 @@
         "DATETIME_FORMATTER": "YYYY-mm-DD HH:MM:SS",
         "TIMEZONE": "Europe/Paris",
         "NO_PROMPT": false,
-        "INCLUDE_FILTER": [
+        "INCLUSION_FILTERS": [
             "*", 
             "*.*", 
             ".*"
+        ],
+        "EXCLUSION_FILTERS": [
+            ".DS_Store"
         ],
         "PROCESSES_FALLBACK": 4,
         "HASH_ALGORITHMS": [
@@ -32,11 +35,11 @@
 
     "INVOKE_ALL_MODULES_IF_NONE_SPECIFIED": true,
     "MATCHES_FILE_BASENAME": "matches",
-    "STORAGE_DIRECTORY": "matches",
+    "STORAGE_DIRECTORY": "evidences",
     "NEUTRALIZE_MATCHING_EVIDENCES": true,
     "OUTPUT_CHARACTER_ENCODING": "utf-8",
     "PROMPT_ROUNDS": 3,
-    "KEEP_TEMPORARY_ARTIFACTS": false,
+    "KEEP_TEMPORARY_ARTIFACTS": true,
     "YARA_MATCH_TIMEOUT": -1,
     "YARA_INCLUDES": true,
     "YARA_ERROR_ON_WARNING": false,

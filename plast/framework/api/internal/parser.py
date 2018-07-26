@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from framework.contexts.logger import Logger as _log
 from framework.contexts.meta import Meta as _meta
 
 import argparse
@@ -33,22 +34,7 @@ class Parser:
         self.register_help_hook(self.parser)
         self.register_version(self.parser, _meta.__package__, _meta.__version__)
 
-        self._add_subparsers()
-
-    def _add_subparsers(self, dest="_subparser"):
-        """
-        .. py:function:: _add_subparsers(self, dest="_subparser")
-
-        Instanciates an :code:`argparse.Parser.subparser` object.
-
-        :param self: current class instance
-        :type self: class
-
-        :param dest: name of the argument which will be the representation of the selected subparser
-        :type dest: str
-        """
-
-        self.subparsers = self.parser.add_subparsers(dest=dest)
+        self.subparsers = self.parser.add_subparsers(dest="_subparser")
 
     def register_help_hook(self, parser):
         """

@@ -14,7 +14,7 @@ image:https://img.shields.io/badge/python-3.7-blue.svg[link={uri-python}] image:
 
 image::logo.png[alt=plast, align="center", width=65%, link={uri-repo}]
 
-`plast` (_Programme Libre d'Analyse STatique_ in french) is a command-line and heavily modular *threat-hunting tool*. It comes with several modules that allow processing of multiple data types, trigger automatic actions upon detection and produce customized output.
+`plast` (_"Programme Libre d'Analyse STatique"_ in french) is a command-line and heavily modular *threat-hunting tool*. It comes with several modules that allow processing of multiple data types, trigger automatic actions upon detection and produce customized output.
 
 `plast` 's engine uses {uri-yara}[YARA] under the hood, leveraged through https://docs.python.org/3.7/library/multiprocessing.html[multiprocessing] tasks to perform rule-based detection on multiple types of input.
 
@@ -22,7 +22,7 @@ The main goal of the `plast` project is to provide an *efficient and effortless*
 
 It provides a comprehensive framework that easily allows to add functionalities to the tool in just a few lines of code, without worrying about efficiency and scalability. `plast` embeds all referenced modules in one single tool, allowing it to be used on the field as a *standalone utility*.
 
-`plast` is entirely written in `python3` which makes it compatible with all GNU/Linux, BSD and macOS distributions. Nevertheless, some minimal dependencies are required.
+`plast` is entirely written in https://www.python.org/[Python 3] which makes it compatible with all GNU/Linux, BSD and macOS distributions. Nevertheless, some minimal dependencies are required.
 
 Note that running `plast` on Microsoft Windows operating systems is totally untested at the moment.
 
@@ -38,9 +38,7 @@ Follow these steps to get a copy of the project up and running on a live system.
 
 Follow the steps described below to install the project on your system.
 
-==== Debian-based Package Manager
-
-Install the latest `python3` environment:
+Install the latest https://www.python.org/[Python 3] environment (here using the Debian Package Management utility `apt`):
 
 [source,sh]
 ----
@@ -165,18 +163,18 @@ Please refer to the instructions provided in {uri-contrib}[CONTRIBUTING.adoc] be
 
 Similar projects include:
 
-* https://www.fireeye.com/services/freeware/ioc-finder.html[IOC Finder]
-* https://github.com/Neo23x0/Loki[Loki]
-* https://github.com/fhightower/ioc-finder[ioc-finder]
-* https://github.com/reed1713/ELAT[ELAT]
-* https://github.com/EmersonElectricCo/fsf[FSF]
-* https://github.com/KasperskyLab/klara[KLara]
-* https://github.com/lmco/laikaboss[Laika BOSS]
-* https://github.com/usualsuspect/malscan[malscan]
-* https://github.com/DCSO/spyre[Spyre]
-* https://github.com/PUNCH-Cyber/stoq[stoQ]
-* https://github.com/kevthehermit/YaraPcap[yaraPCAP]
-* https://github.com/BayshoreNetworks/yextend[yextend]
+* FireEye's IOC Finder (https://www.fireeye.com/services/freeware/ioc-finder.html): _"The FireEye Indicators of Compromise (IOC) Finder is a free tool for collecting host system data and reporting the presence of IOCs."_
+* Nextron's Loki (https://github.com/Neo23x0/Loki): _"LOKI is an open-source IOC and YARA scanner written in Python."_
+* ioc-finder (https://github.com/fhightower/ioc-finder)
+* ELAT (https://github.com/reed1713/ELAT)
+* FSF (https://github.com/EmersonElectricCo/fsf): _"FSF is a modular, recursive file scanning solution. FSF enables analysts to extend the utility of the YARA signatures they write and define actionable intelligence within a file. This is accomplished by recursively scanning a file and looking for opportunities to extract file objects using a combination of YARA signatures (to define opportunities) and programmable logic (to define what to do with the opportunity). The framework allows you to build out your intelligence capability by empowering you to apply observations wrought out of the analytical process..."_
+* Kaspersky's KLara (https://github.com/KasperskyLab/klara): _"KLara project is aimed at helping Threat Intelligence researchers hunt for new malware using YARA."_
+* Laika BOSS (https://github.com/lmco/laikaboss): _"Laika is an object scanner and intrusion detection system that strives to achieve scalability, flexibility and verbosity."_
+* malscan (https://github.com/usualsuspect/malscan): _"`malscan` is a tool to scan process memory for YARA matches and execute Python scripts if a match is found. This is useful for extracting configurations from malware process memory for example."_
+* Spyre (https://github.com/DCSO/spyre): _"Spyre is a simple YARA scanner, the main goal is easy operationalization of YARA rules. Comprehensive rule sets are not included. Spyre is intended to be used as an investigation tool by incident responders with an appropriate skill level. It is not meant to be used as any kind of endpoint protection service."_
+* stoQ (https://github.com/PUNCH-Cyber/stoq): _"stoQ is an automation framework that helps to simplify the more mundane and repetitive tasks an analyst is required to do. It allows analysts and DevSecOps teams the ability to quickly transition from different data sources, databases, decoders/encoders, and numerous other tasks. stoQ was designed to be enterprise ready and scalable, while also being lean enough for individual security researchers."_
+* yaraPCAP (https://github.com/kevthehermit/YaraPcap): _"YARA scanner for IMAP feeds and saved streams."_
+* yextend (https://github.com/BayshoreNetworks/yextend): _"Yara integrated software to handle archive file data. `yextend` was written for the sake of augmenting YARA. YARA by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to. For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, YARA in its native form could not help us. So what we have done is natively handle the inflation of archived content. And we pass the inflated content of each discovered resource to YARA so that it can work its magic natively on one file's payload. Then YARA does what it does quite well in terms of pattern matching and such based on a given set of rules."_
 
 == Versioning
 

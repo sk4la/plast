@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from framework.contexts.configuration import Configuration as _conf
 from framework.contexts.logger import Logger as _log
 
 import fnmatch
@@ -15,6 +16,7 @@ except ImportError as exc:
 
 __all__ = [
     "guess_file_type",
+    "expand_files",
     "enumerate_matching_files",
     "matches_patterns"
 ]
@@ -44,6 +46,48 @@ def create_local_directory(directory, mask=0o700):
         Exception):
 
         _log.fault("Failed to create local directory <{}>.".format(directory), post_mortem=True)
+
+def expand_files(feed, recursive=False, include=_conf.DEFAULTS["INCLUSION_FILTERS"], exclude=_conf.DEFAULTS["EXCLUSION_FILTERS"]):
+    """
+    .. py:function:: _expand_files(feed, recursive=False, include=_conf.DEFAULTS["INCLUSION_FILTERS"], exclude=_conf.DEFAULTS["EXCLUSION_FILTERS"])
+
+    Iterates through file(s) and directory(ies) to retrieve the complete list of file(s).
+
+    :param feed: list of files and directories
+    :type feed: list
+
+    :param recursive: search files recursively
+    :type recursive: bool
+
+    :param include: list of wildcard patterns to include
+    :type include: list
+
+    :param exclude: list of wildcard patterns to exclude
+    :type exclude: list
+
+    :return: flattened list of existing files
+    :rtype: list
+    """
+
+    feedback = []
+
+    for item in [os.path.abspath(_) for _ in feed]:
+        if os.path.isfile(item):
+            if matches_patterns(os.path.basename(item), patterns=include):
+                if not exclude or (exclude and not matches_patterns(os.path.basename(item), patterns=exclude)):
+                    feedback.append(item)
+
+        elif os.path.isdir(item):
+            for file in [os.path.abspath(_) for _ in enumerate_matching_files(item, include, recursive=recursive)]:
+                if os.path.isfile(file):
+                    if matches_patterns(os.path.basename(file), patterns=include):
+                        if not exclude or (exclude and not matches_patterns(os.path.basename(file), patterns=exclude)):
+                            feedback.append(file)
+
+        else:
+            _log.error("Object not found <{}>.".format(item))
+
+    return feedback
 
 def guess_file_type(target):
     """

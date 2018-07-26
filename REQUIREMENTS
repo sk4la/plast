@@ -1,5 +1,6 @@
 colorama>=0.3.9
 colorlog>=3.1.0
+eml-parser>=1.10
 filetype>=1.0.1
 pendulum>=1.5.1
 Pygments>=2.2.0
