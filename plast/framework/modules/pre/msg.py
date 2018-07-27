@@ -20,7 +20,14 @@ class Pre(_models.Pre):
     __maintainer__ = ["sk4la"]
     __system__ = ["Darwin", "Linux", "Windows"]
     __version__ = "0.1"
-    __associations__ = {}
+    __associations__ = {
+        "extensions": [
+            "msg"
+        ],
+        "mime": [
+            "application/vnd.ms-outlook"
+        ]
+    }
 
     def run(self):
         """

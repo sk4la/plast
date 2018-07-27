@@ -61,7 +61,7 @@ class Case:
         """
 
         if _conf.KEEP_TEMPORARY_ARTIFACTS:
-            _log.warning("Skipped temporary artifact(s) cleanup.")
+            _log.warning("Skipped temporary artifact(s) cleanup. Try setting _conf.KEEP_TEMPORARY_ARTIFACT to false in order to change this behavior.")
             return
 
         self._tear_down()
@@ -90,9 +90,9 @@ class Case:
 
                 _log.exception("Failed to remove temporary artifact <{}>.".format(artifact))
 
-    def _generate_nonce(self, rounds=16):
+    def _generate_nonce(self, rounds=_conf.NONCE_LENGTH):
         """
-        .. py:function:: _generate_nonce(self, rounds=16)
+        .. py:function:: _generate_nonce(self, rounds=_conf.NONCE_LENGTH)
 
         Generates a random string.
 
@@ -231,11 +231,11 @@ class Case:
         evidences = [os.path.abspath(evidence) for evidence in evidences]
 
         for evidence in self._iterate_existing_files(evidences):
-            if include and not _fs.matches_patterns(os.path.basename(evidence), patterns=include):
+            if include and not _fs.matches_patterns(os.path.basename(evidence), wildcard_patterns=include):
                 _log.debug("Ignoring evidence <{}> not matching inclusion pattern(s) <{}>.".format(evidence, include))
                 continue
 
-            if exclude and _fs.matches_patterns(os.path.basename(evidence), patterns=exclude):
+            if exclude and _fs.matches_patterns(os.path.basename(evidence), wildcard_patterns=exclude):
                 _log.debug("Ignoring evidence <{}> matching exclusion pattern(s) <{}>.".format(evidence, exclude))
                 continue
 

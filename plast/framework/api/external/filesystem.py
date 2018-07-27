@@ -6,6 +6,7 @@ from framework.contexts.logger import Logger as _log
 import fnmatch
 import glob
 import itertools
+import magic
 import os
 
 try:
@@ -18,7 +19,8 @@ __all__ = [
     "guess_file_type",
     "expand_files",
     "enumerate_matching_files",
-    "matches_patterns"
+    "matches_patterns",
+    "matches_mime_types"
 ]
 
 def create_local_directory(directory, mask=0o700):
@@ -73,15 +75,15 @@ def expand_files(feed, recursive=False, include=_conf.DEFAULTS["INCLUSION_FILTER
 
     for item in [os.path.abspath(_) for _ in feed]:
         if os.path.isfile(item):
-            if matches_patterns(os.path.basename(item), patterns=include):
-                if not exclude or (exclude and not matches_patterns(os.path.basename(item), patterns=exclude)):
+            if matches_patterns(os.path.basename(item), wildcard_patterns=include):
+                if not exclude or (exclude and not matches_patterns(os.path.basename(item), wildcard_patterns=exclude)):
                     feedback.append(item)
 
         elif os.path.isdir(item):
             for file in [os.path.abspath(_) for _ in enumerate_matching_files(item, include, recursive=recursive)]:
                 if os.path.isfile(file):
-                    if matches_patterns(os.path.basename(file), patterns=include):
-                        if not exclude or (exclude and not matches_patterns(os.path.basename(file), patterns=exclude)):
+                    if matches_patterns(os.path.basename(file), wildcard_patterns=include):
+                        if not exclude or (exclude and not matches_patterns(os.path.basename(file), wildcard_patterns=exclude)):
                             feedback.append(file)
 
         else:
@@ -108,17 +110,20 @@ def guess_file_type(target):
     except TypeError:
         return None
 
-def enumerate_matching_files(reference, patterns, recursive=False):
+def enumerate_matching_files(directory, wildcard_patterns=None, mime_types=None, recursive=False):
     """
-    .. py:function:: enumerate_matching_files(reference, patterns)
+    .. py:function:: enumerate_matching_files(directory, wildcard_patterns=[], mime_types=[], recursive=False)
 
     Returns an iterator pointing to the matching file(s) based on shell-like pattern(s).
 
-    :param reference: absolute path to the rulesets directory
-    :type reference: str
+    :param directory: absolute path to the reference directory
+    :type directory: str
 
-    :param patterns: list of globbing filter(s) to apply for the search
-    :type patterns: list
+    :param wildcard_patterns: list of globbing filter(s) to apply for the search
+    :type wildcard_patterns: list
+
+    :param mime_types: list of mime-types to include
+    :type mime_types: list
 
     :param recursive: set to True to walk directory(ies) recursively
     :type recursive: bool
@@ -127,22 +132,55 @@ def enumerate_matching_files(reference, patterns, recursive=False):
     :rtype: set
     """
 
-    return set(itertools.chain.from_iterable(glob.iglob(os.path.join(reference, "**" if recursive else "", pattern), recursive=recursive) for pattern in patterns))
+    feedback = set()
 
-def matches_patterns(file, patterns=[]):
+    if wildcard_patterns:
+        feedback.update(set(itertools.chain.from_iterable(glob.iglob(os.path.join(directory, "**" if recursive else "", pattern), recursive=recursive) for pattern in wildcard_patterns)))
+
+    if mime_types:
+        for item in itertools.chain.from_iterable(glob.iglob(os.path.join(directory, "**" if recursive else "", "**")), glob.iglob(os.path.join(directory, "**" if recursive else "", ".*"))):
+            if mime_type_matches(item, mime_types=mime_types):
+                feedback.add(item)
+
+    return feedback
+
+def matches_patterns(file, wildcard_patterns=[]):
     """
-    .. py:function:: matches_patterns(file, patterns=[])
+    .. py:function:: matches_patterns(file, wildcard_patterns=[])
 
     Tests whether a given file matches one or more wildcard pattern(s).
 
     :param file: name of the file to test
     :type file: str
 
-    :param patterns: list of wildcard patterns as strings
-    :type patterns: list
+    :param wildcard_patterns: list of wildcard patterns as strings
+    :type wildcard_patterns: list
 
     :return: True if the file matches one or more of the given patterns, else False
     :rtype: bool
     """
 
-    return any(fnmatch.fnmatch(file, pattern) for pattern in patterns)
+    return any(fnmatch.fnmatch(file, pattern) for pattern in wildcard_patterns)
+
+def matches_mime_types(file, mime_types=[]):
+    """
+    .. py:function:: matches_mime_types(file, mime_types=[])
+
+    Tests wether a given file matches one or more MIME type(s).
+
+    :param file: name of the file to test
+    :type file: str
+
+    :param mime_types: list of MIME types rendered as strings
+    :type mime_types: list
+
+    :return: True if the file matches one or more of the given MIME type(s), else False
+    :rtype: bool
+    """
+
+    mime = magic.Magic(mime=True)
+
+    if mime.from_file(file) in mime_types:
+        return True
+
+    return False

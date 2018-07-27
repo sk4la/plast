@@ -133,7 +133,7 @@ def _argparser(parser):
 
     parser.add_argument(
         "--exclude", nargs="+", default=_conf.DEFAULTS["EXCLUSION_FILTERS"], metavar="FILTER", 
-        help="override include and ignore file(s) matching wildcard filter(s)")
+        help="override include and ignore file(s) matching wildcard filter(s) {}".format(_conf.DEFAULTS["EXCLUSION_FILTERS"]))
 
     parser.add_argument(
         "--fast", action="store_true", default=_conf.DEFAULTS["YARA_FAST_MODE"],

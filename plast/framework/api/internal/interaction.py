@@ -6,6 +6,7 @@ from framework.contexts import errors as _errors
 from framework.contexts.configuration import Configuration as _conf
 from framework.contexts.logger import Logger as _log
 
+import getpass
 import sys
 
 try:
@@ -15,12 +16,55 @@ except ImportError as exc:
     _log.fault("Missing dependency <{0}>. Try <pip install {0}> or manually build the required module to fix the issue.".format(exc.name))
 
 __all__ = [
+    "password_prompt",
     "prompt"
 ]
 
+def password_prompt(message=None, rounds=_conf.PROMPT_ROUNDS):
+    """
+    .. py:function:: password_prompt(rounds=_conf.PROMPT_ROUNDS)
+
+    Prompts the user for a password.
+
+    :param message: question to ask
+    :type message: str
+
+    :param rounds: number of times to prompt before aborting
+    :type rounds: int
+    """
+
+    for _ in range(rounds):
+        try:
+            password = getpass.getpass("{}{}{}{}{}".format(
+                Fore.WHITE, 
+                Style.BRIGHT, 
+                message, 
+                Fore.RESET, 
+                Style.RESET_ALL)) if message else getpass.getpass()
+
+        except KeyboardInterrupt:
+            sys.stderr.write("\n")
+            _log.fault("Aborted due to manual user interruption.")
+
+        try:
+            if getpass.getpass("{}{}Confirm:{}{}".format(
+                Fore.WHITE, 
+                Style.BRIGHT, 
+                Fore.RESET, 
+                Style.RESET_ALL)) == password:
+
+                _log.debug("Unpacking password successfully set.")
+                return password
+
+        except KeyboardInterrupt:
+            sys.stderr.write("\n")
+            _log.fault("Aborted due to manual user interruption.")
+
+    _log.fault("No valid password provided. Aborting.")
+
 def prompt(message, rounds=_conf.PROMPT_ROUNDS, default_state=False):
         """
-        .. py:function:: _prompt(message, rounds=_conf.PROMPT_ROUNDS, default_state=False)
+        .. py:function:: prompt(message, rounds=_conf.PROMPT_ROUNDS, default_state=False)
 
         Prompts the user with a yes/no question and wait for a valid answer.
 

@@ -8,7 +8,6 @@
         "NO_PROMPT": false,
         "INCLUSION_FILTERS": [
             "*", 
-            "*.*", 
             ".*"
         ],
         "EXCLUSION_FILTERS": [
@@ -38,6 +37,7 @@
     "STORAGE_DIRECTORY": "evidences",
     "NEUTRALIZE_MATCHING_EVIDENCES": true,
     "OUTPUT_CHARACTER_ENCODING": "utf-8",
+    "NONCE_LENGTH": 32,
     "PROMPT_ROUNDS": 3,
     "KEEP_TEMPORARY_ARTIFACTS": true,
     "YARA_MATCH_TIMEOUT": -1,
