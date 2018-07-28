@@ -98,7 +98,11 @@ class Pre(_models.Pre):
         if self.case.arguments._no_recursion:
             return
 
-        for subarchive in _fs.enumerate_matching_files(sub_directory, wildcard_patterns=(["*.{}".format(_) for _ in self.__associations__["extensions"]] + [".*.{}".format(_) for _ in self.__associations__["extensions"]] if hasattr(self, "__associations__") and "extensions" in self.__associations__ else None), mime_types=(self.__associations__["mime"] if hasattr(self, "__associations__") and "mime" in self.__associations__ else None), recursive=True):
+        for subarchive in _fs.enumerate_matching_files(sub_directory, 
+            wildcard_patterns=(["*.{}".format(_) for _ in self.__associations__["extensions"]] + [".*.{}".format(_) for _ in self.__associations__["extensions"]] if hasattr(self, "__associations__") and "extensions" in self.__associations__ else None), 
+            mime_types=(self.__associations__["mime"] if hasattr(self, "__associations__") and "mime" in self.__associations__ else None), 
+            recursive=True):
+
             self.recursive_inflate(subarchive, sub_directory, level=(level + 1), password=password)
 
     def run(self):

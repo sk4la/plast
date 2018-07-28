@@ -50,19 +50,19 @@ class Loader:
         try:
             module = importlib.import_module("framework.modules.{}.{}".format(model.__name__.lower(), name))
 
-        except ModuleNotFoundError as exc:
+        except ModuleNotFound as exc:
             _log.fault("Missing dependency <{0}>. Try <pip install {0}> or manually build the required module to fix the issue.".format(exc.name))
 
         try:
             _checker.check_module(module, model)
 
-        except _errors.NotFoundError:
+        except _errors.NotFound:
             _log.fault("No subclass found in module <{}.{}>. Quitting.".format(model.__name__.lower(), name), post_mortem=True)
 
-        except _errors.ModuleInheritanceError:
+        except _errors.ModuleInheritance:
             _log.fault("Module <{}.{}> not inheriting from the base class. Quitting.".format(model.__name__.lower(), name), post_mortem=True)
 
-        except _errors.SystemNotSupportedError:
+        except _errors.SystemNotSupported:
             if model.__name__ == _models.Pre.__name__:
                 _log.fault("Module <{}.{}> does not support the current system <{}>. Quitting.".format(model.__name__.lower(), name, platform.system()))
 
@@ -73,23 +73,23 @@ class Loader:
         return getattr(module, model.__name__)
 
     @staticmethod
-    def iterate_rulesets(directory=os.path.join(_meta.__root__, "rulesets"), globbing_filters=_conf.YARA_EXTENSION_FILTERS):
+    def iterate_rulesets(directory=os.path.join(_meta.__root__, "rulesets"), wildcard_patterns=_conf.YARA_EXTENSION_FILTERS):
         """
-        .. py:function:: iterate_rulesets(directory=os.path.join(_meta.__root__, "rulesets"), globbing_filters=_conf.YARA_EXTENSION_FILTERS)
+        .. py:function:: iterate_rulesets(directory=os.path.join(_meta.__root__, "rulesets"), wildcard_filters=_conf.YARA_EXTENSION_FILTERS)
 
         Iterates through the available YARA ruleset(s).
 
         :param directory: absolute path to the rulesets directory
         :type directory: str
 
-        :param globbing_filters: list of globbing filter to apply for the search
-        :type globbing_filters: list
+        :param wildcard_patterns: list of wildcard filter to apply for the search
+        :type wildcard_patterns: list
 
         :return: basename and absolute path to the current ruleset
         :rtype: tuple
         """
 
-        for file in _fs.enumerate_matching_files(directory, globbing_filters, recursive=True):
+        for file in _fs.enumerate_matching_files(directory, wildcard_patterns=wildcard_patterns, recursive=True):
             yield os.path.splitext(os.path.basename(file))[0], file
 
     @staticmethod
@@ -138,7 +138,7 @@ class Loader:
         try:
             _checker.check_package(package)
 
-        except _errors.InvalidPackageError:
+        except _errors.InvalidPackage:
             _log.fault("Invalid package <{}>.".format(package), post_mortem=True)
 
         return [os.path.splitext(name)[0] for name, _ in Loader.iterate_modules(package, model, silent=True)]

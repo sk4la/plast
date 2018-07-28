@@ -81,7 +81,7 @@ class Case:
                 shutil.rmtree(artifact)
                 _log.debug("Removed temporary artifact <{}>.".format(artifact))
 
-            except FileNotFoundError:
+            except FileNotFound:
                 _log.debug("Temporary artifact not found <{}>.".format(artifact))
 
             except (

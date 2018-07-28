@@ -93,7 +93,7 @@ class Logger:
         })
 
     except (
-        ModuleNotFoundError,
+        ModuleNotFound,
         ValueError) as exc:
 
         sys.exit(exc)

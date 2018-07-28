@@ -101,7 +101,7 @@ def prompt(message, rounds=_conf.PROMPT_ROUNDS, default_state=False):
                     Fore.RESET, 
                     Style.RESET_ALL)))
 
-            except _errors.MalformatedDataError:
+            except _errors.MalformatedData:
                 _log.fault("Malformated input.")
 
             except KeyboardInterrupt:

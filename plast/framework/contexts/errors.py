@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 __all__ = [
-    "CharacterEncodingError",
-    "InvalidObjectError",
-    "InvalidPackageError",
-    "MalformatedDataError",
-    "ModuleInheritanceError",
-    "NotFoundError",
-    "SystemNotSupportedError",
-    "UnsupportedTypeError"
+    "CharacterEncoding",
+    "InvalidObject",
+    "InvalidPackage",
+    "MalformatedData",
+    "ModuleInheritance",
+    "NotFound",
+    "SystemNotSupported",
+    "UnsupportedType"
 ]
 
 class CustomException(Exception):
@@ -17,26 +17,29 @@ class CustomException(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
 
-class CharacterEncodingError(CustomException):
+class CharacterEncoding(CustomException):
     pass
 
-class InvalidObjectError(CustomException):
+class InvalidObject(CustomException):
     pass
 
-class InvalidPackageError(CustomException):
+class InvalidPackage(CustomException):
     pass
 
-class MalformatedDataError(CustomException):
+class MalformatedData(CustomException):
     pass
 
-class ModuleInheritanceError(CustomException):
+class ModuleInheritance(CustomException):
     pass
 
-class NotFoundError(CustomException):
+class NotFound(CustomException):
     pass
 
-class SystemNotSupportedError(CustomException):
+class SystemNotSupported(CustomException):
     pass
 
-class UnsupportedTypeError(CustomException):
+class UnsupportedType(CustomException):
+    pass
+
+class UnknownType(CustomException):
     pass

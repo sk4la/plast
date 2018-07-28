@@ -7,6 +7,6 @@ __pycache__/
 .env/
 
 rulesets/*
-!rulesets/.empty
+!rulesets/.gitkeep
 
 resources/templates/*

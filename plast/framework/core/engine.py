@@ -76,7 +76,7 @@ class Engine:
             count += sum(1 for _ in rules)
 
             _log.debug("Precompilated YARA ruleset <{}> in memory with a total of <{}> valid rule(s).".format(name, count))
-            return (True, count)
+            return True, count
 
         except yara.SyntaxError:
             _log.exception("Syntax error in YARA ruleset <{}>.".format(ruleset))
@@ -87,7 +87,7 @@ class Engine:
 
             _log.exception("Failed to pre-compile ruleset <{}>.".format(ruleset))
 
-        return (False, count)
+        return False, count
 
     def _dispatch_jobs(self):
         """

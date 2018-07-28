@@ -3,10 +3,8 @@
 from framework.contexts.configuration import Configuration as _conf
 from framework.contexts.logger import Logger as _log
 
-import fnmatch
 import glob
 import itertools
-import magic
 import os
 
 try:
@@ -80,7 +78,7 @@ def expand_files(feed, recursive=False, include=_conf.DEFAULTS["INCLUSION_FILTER
                     feedback.append(item)
 
         elif os.path.isdir(item):
-            for file in [os.path.abspath(_) for _ in enumerate_matching_files(item, include, recursive=recursive)]:
+            for file in [os.path.abspath(_) for _ in enumerate_matching_files(item, wildcard_patterns=include, recursive=recursive)]:
                 if os.path.isfile(file):
                     if matches_patterns(os.path.basename(file), wildcard_patterns=include):
                         if not exclude or (exclude and not matches_patterns(os.path.basename(file), wildcard_patterns=exclude)):
@@ -119,7 +117,7 @@ def enumerate_matching_files(directory, wildcard_patterns=None, mime_types=None,
     :param directory: absolute path to the reference directory
     :type directory: str
 
-    :param wildcard_patterns: list of globbing filter(s) to apply for the search
+    :param wildcard_patterns: list of wildcard filter(s) to apply for the search
     :type wildcard_patterns: list
 
     :param mime_types: list of mime-types to include
@@ -135,52 +133,13 @@ def enumerate_matching_files(directory, wildcard_patterns=None, mime_types=None,
     feedback = set()
 
     if wildcard_patterns:
-        feedback.update(set(itertools.chain.from_iterable(glob.iglob(os.path.join(directory, "**" if recursive else "", pattern), recursive=recursive) for pattern in wildcard_patterns)))
+        for item in set(itertools.chain.from_iterable(glob.iglob(os.path.join(directory, "**" if recursive else "", pattern), recursive=recursive) for pattern in wildcard_patterns)):
+            if os.path.isfile(item):
+                feedback.add(item)
 
     if mime_types:
-        for item in itertools.chain.from_iterable(glob.iglob(os.path.join(directory, "**" if recursive else "", "**")), glob.iglob(os.path.join(directory, "**" if recursive else "", ".*"))):
-            if mime_type_matches(item, mime_types=mime_types):
+        for item in set(itertools.chain.from_iterable(glob.iglob(os.path.join(directory, "**" if recursive else "", pattern), recursive=recursive) for pattern in ["*", ".*"])):
+            if os.path.isfile(item) and matches_mime_types(item, mime_types=mime_types):
                 feedback.add(item)
 
     return feedback
-
-def matches_patterns(file, wildcard_patterns=[]):
-    """
-    .. py:function:: matches_patterns(file, wildcard_patterns=[])
-
-    Tests whether a given file matches one or more wildcard pattern(s).
-
-    :param file: name of the file to test
-    :type file: str
-
-    :param wildcard_patterns: list of wildcard patterns as strings
-    :type wildcard_patterns: list
-
-    :return: True if the file matches one or more of the given patterns, else False
-    :rtype: bool
-    """
-
-    return any(fnmatch.fnmatch(file, pattern) for pattern in wildcard_patterns)
-
-def matches_mime_types(file, mime_types=[]):
-    """
-    .. py:function:: matches_mime_types(file, mime_types=[])
-
-    Tests wether a given file matches one or more MIME type(s).
-
-    :param file: name of the file to test
-    :type file: str
-
-    :param mime_types: list of MIME types rendered as strings
-    :type mime_types: list
-
-    :return: True if the file matches one or more of the given MIME type(s), else False
-    :rtype: bool
-    """
-
-    mime = magic.Magic(mime=True)
-
-    if mime.from_file(file) in mime_types:
-        return True
-
-    return False

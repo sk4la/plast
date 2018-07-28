@@ -36,8 +36,8 @@ def iterate_matches(target):
                 yield _renderer.from_json(match)
 
             except (
-                _errors.CharacterEncodingError,
-                _errors.InvalidObjectError):
+                _errors.CharacterEncoding,
+                _errors.InvalidObject):
 
                 _log.error("Failed to interpret match <{}>.".format(match))
 

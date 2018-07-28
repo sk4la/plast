@@ -63,7 +63,7 @@ class Reader:
         try:
             self.output.write("{}\n".format(_renderer.to_json(data)))
 
-        except _errors.CharacterEncodingError:
+        except _errors.CharacterEncoding:
             _log.error("Cannot decode data from <{}>.".format(data["target"]["identifier"]))
 
         except InvalidObject:

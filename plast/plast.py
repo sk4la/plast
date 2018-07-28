@@ -48,14 +48,14 @@ def _find_association(modules, meta):
     :return: tuple containing the name of the associated module and actual module object
     :rtype: tuple
 
-    :raises UnsupportedTypeError: if :code:`meta` cannot be handled by the available preprocessing module(s)
+    :raises UnsupportedType: if :code:`meta` cannot be handled by the available preprocessing module(s)
     """
 
     for name, Module in modules.items():
         if hasattr(Module, "__associations__") and (meta.mime in Module.__associations__.get("mime", []) or meta.extension in Module.__associations__.get("extensions", [])):
             return name, Module
 
-    raise _errors.UnsupportedTypeError
+    raise _errors.UnsupportedType
 
 def _dispatch_preprocessing(modules, case, feed):
     """
@@ -89,7 +89,7 @@ def _dispatch_preprocessing(modules, case, feed):
             tasks.setdefault((name, Module), []).append(file)
             _log.debug("Identified data type <{}> for evidence <{}>. Dispatching to <{}>.".format(meta.mime, file, name))
 
-        except _errors.UnsupportedTypeError:
+        except _errors.UnsupportedType:
             tasks.setdefault(("raw", modules["raw"]), []).append(file)
             _log.warning("Data type <{}> unsupported. Added evidence <{}> to the force-feeding list.".format(meta.mime, file))
 

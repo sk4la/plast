@@ -5,6 +5,7 @@ ExtractMsg>=0.3
 filetype>=1.0.1
 pendulum>=1.5.1
 Pygments>=2.2.0
+python-magic>=0.4.15
 Send2Trash>=1.5.0
 simplejson>=3.13.2
 yara-python>=3.7.0
